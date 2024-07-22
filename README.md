@@ -38,7 +38,7 @@ Before using the library, configure the SQL Server connection in your `common.Sq
 
 ### Inserting Data
 
-To insert data into the `dbo.Hris_TCuti` table, prepare a `DataTable` with the necessary data and call the `InsertHris_TCuti` method:
+To insert data into the `dbo.TbMahasiswa` table, prepare a `DataTable` with the necessary data and call the `InsertTbMahasiswa` method:
 
 ```csharp
 using System;
@@ -48,46 +48,28 @@ using System.Collections.Generic;
 
 public class DatabaseHelper
 {
-    public void InsertHris_TCuti(DataTable dataTable)
+    public void InsertTbMahasiswa(DataTable dataTable)
     {
-        string insertQuery = @"
-            INSERT INTO dbo.Hris_TCuti (ct_kode, ct_tran, mk_nopeg, ct_from, ct_to, ct_korin, 
-                                        ct_notes, ct_address, ct_create, ct_createby, ct_update, 
-                                        ct_updateby, ct_app1_unit, ct_app1_time, ct_app1_by, 
-                                        ct_app1_status, ct_app2_unit, ct_app2_time, ct_app2_by, 
-                                        ct_app2_status, [status], koreksi, status_sap, jml_hari_cuti, 
-                                        mk_nopeg_delegasi)
-            VALUES (@ct_kode, @ct_tran, @mk_nopeg, @ct_from, @ct_to, @ct_korin, 
-                    @ct_notes, @ct_address, @ct_create, @ct_createby, @ct_update, 
-                    @ct_updateby, @ct_app1_unit, @ct_app1_time, @ct_app1_by, 
-                    @ct_app1_status, @ct_app2_unit, @ct_app2_time, @ct_app2_by, 
-                    @ct_app2_status, @status, @koreksi, @status_sap, @jml_hari_cuti, 
-                    @mk_nopeg_delegasi)";
-
-        string[] parameters = new string[]
+        string insertQuery = @" INSERT INTO dbo.tb_mahasiswa (id, nama, kelas, prodi, npm, createddate)
+                                VALUES (@id, @nama, @kelas, @prodi, @npm, @createddate)";
+    
+        string[] parameters =
         {
-            "ct_kode", "ct_tran", "mk_nopeg", "ct_from", "ct_to", "ct_korin",
-            "ct_notes", "ct_address", "ct_create", "ct_createby", "ct_update",
-            "ct_updateby", "ct_app1_unit", "ct_app1_time", "ct_app1_by",
-            "ct_app1_status", "ct_app2_unit", "ct_app2_time", "ct_app2_by",
-            "ct_app2_status", "status", "koreksi", "status_sap", "jml_hari_cuti",
-            "mk_nopeg_delegasi"
+            "id", "nama", "kelas", "prodi", "npm", "createddate"
         };
-
-        // Define a dictionary to indicate which parameters are DateTime types
-        Dictionary<string, bool> dateTimeColumns = new Dictionary<string, bool>
+    
+        Dictionary<string, bool> dateTimeColumns = new()
         {
-            { "ct_from", true },
-            { "ct_to", true },
-            { "ct_create", true },
-            { "ct_update", true },
-            { "ct_app1_time", true },
-            { "ct_app2_time", true }
+            { "createddate", true }
         };
-
-        InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns);
+    
+        Dictionary<string, bool> intColumns = new()
+        {
+            { "id", true }
+        };
+    
+        InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns, intColumns);
     }
-}
 ```
 
 ### Customizing Queries
