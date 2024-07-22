@@ -12,7 +12,7 @@ namespace SqlMigrate
 
         public Common()
         {
-            _connectionSqlServerString = "Server=khansahanum;Database=todo;Integrated Security=True;Encrypt=False;TrustServerCertificate=False;";
+            _connectionSqlServerString = "Server=khansahanum;Database=db_sintadev;Integrated Security=True;Encrypt=False;TrustServerCertificate=False;";
             _connectionMySqlString = "Server=localhost;Database=todo;User Id=root;Password=;Allow Zero Datetime=true;Convert Zero Datetime=true;";
             _connectionPostgreSqlString = "Server=localhost;Database=todo;User Id=postgres;Password=postgres;";
         }

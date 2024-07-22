@@ -161,7 +161,7 @@ namespace SqlMigrate
         #endregion
 
         #region SQLSERVER
-        private void InsertDataDynamic(DataTable dataTable, string insertQuery, string[] parameters, Dictionary<string, bool> dateTimeColumns)
+        private void InsertDataDynamic(DataTable dataTable, string insertQuery, string[] parameters, Dictionary<string, bool> dateTimeColumns, Dictionary<string, bool> intColumns)
         {
             using SqlConnection sqlConn = common.SqlServerDbConnection;
             sqlConn.Open();
@@ -179,6 +179,10 @@ namespace SqlMigrate
                         {
                             value = DBNull.Value.Equals(value) ? (object)DBNull.Value : Convert.ToDateTime(value);
                         }
+                        else if (intColumns.ContainsKey(param) && intColumns[param])
+                        {
+                            value = DBNull.Value.Equals(value) ? (object)DBNull.Value : Convert.ToInt32(value);
+                        }
                         cmd.Parameters.AddWithValue($"@{param}", value == DBNull.Value ? (object)DBNull.Value : value);
                     }
 
@@ -191,43 +195,28 @@ namespace SqlMigrate
                 }
             }
         }
-        public void InsertHris_TCuti(DataTable dataTable)
+
+        #endregion
+
+        #region TESTER
+        public void InsertTbMahasiswa(DataTable dataTable)
         {
-            string insertQuery = @"
-            INSERT INTO dbo.Hris_TCuti (ct_kode, ct_tran, mk_nopeg, ct_from, ct_to, ct_korin, 
-                                        ct_notes, ct_address, ct_create, ct_createby, ct_update, 
-                                        ct_updateby, ct_app1_unit, ct_app1_time, ct_app1_by, 
-                                        ct_app1_status, ct_app2_unit, ct_app2_time, ct_app2_by, 
-                                        ct_app2_status, [status], koreksi, status_sap, jml_hari_cuti, 
-                                        mk_nopeg_delegasi)
-            VALUES (@ct_kode, @ct_tran, @mk_nopeg, @ct_from, @ct_to, @ct_korin, 
-                    @ct_notes, @ct_address, @ct_create, @ct_createby, @ct_update, 
-                    @ct_updateby, @ct_app1_unit, @ct_app1_time, @ct_app1_by, 
-                    @ct_app1_status, @ct_app2_unit, @ct_app2_time, @ct_app2_by, 
-                    @ct_app2_status, @status, @koreksi, @status_sap, @jml_hari_cuti, 
-                    @mk_nopeg_delegasi)";
+            string insertQuery = @" INSERT INTO dbo.tb_mahasiswa (id, nama, kelas, prodi, npm, createddate)
+                                    VALUES (@id, @nama, @kelas, @prodi, @npm, @createddate)";
 
             string[] parameters =
-            [
-            "ct_kode", "ct_tran", "mk_nopeg", "ct_from", "ct_to", "ct_korin",
-            "ct_notes", "ct_address", "ct_create", "ct_createby", "ct_update",
-            "ct_updateby", "ct_app1_unit", "ct_app1_time", "ct_app1_by",
-            "ct_app1_status", "ct_app2_unit", "ct_app2_time", "ct_app2_by",
-            "ct_app2_status", "status", "koreksi", "status_sap", "jml_hari_cuti",
-            "mk_nopeg_delegasi"
-            ];
+            {
+                "id", "nama", "kelas", "prodi", "npm", "createddate"
+            };
 
             Dictionary<string, bool> dateTimeColumns = new()
             {
-                { "ct_from", true },
-                { "ct_to", true },
-                { "ct_create", true },
-                { "ct_update", true },
-                { "ct_app1_time", true },
-                { "ct_app2_time", true }
+                { "createddate", true }
             };
 
-            InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns);
+            Dictionary<string, bool> intColumns = new();
+
+            InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns, intColumns);
         }
         #endregion
 

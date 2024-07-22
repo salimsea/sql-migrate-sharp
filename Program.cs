@@ -8,11 +8,10 @@ class Program
         try
         {
             MigrateQuery migrateQuery = new();
-            // string query = "SELECT * FROM t_cuti ORDER BY ct_id LIMIT 100000 OFFSET 200000";
-            string query = "SELECT * FROM t_cuti ORDER BY ct_id";
+            string query = "SELECT * FROM tb_mhs ORDER BY id";
 
             DataTable mysqlData = migrateQuery.GetDataFromMySql(query);
-            migrateQuery.InsertHris_TCuti(mysqlData);
+            migrateQuery.InsertTbMahasiswa(mysqlData);
         }
         catch (Exception ex)
         {
