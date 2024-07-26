@@ -1,4 +1,5 @@
 ﻿using SqlMigrate;
+using SqlMigrate.Helpers;
 using System.Data;
 
 class Program
@@ -7,17 +8,20 @@ class Program
     {
         try
         {
-            MigrateQuery migrateQuery = new();
-            string query = "SELECT * FROM tb_mhs ORDER BY id";
+            using var loading = new LoadingHelper();
+            using var stopwatch = new StopwatchHelper();
 
+            MigrateQuery migrateQuery = new();
+
+            string query = "SELECT * FROM t_email";
             DataTable mysqlData = migrateQuery.GetDataFromMySql(query);
             migrateQuery.InsertTbMahasiswa(mysqlData);
+
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
+            Console.WriteLine($"[ERROR] TASK : {ex.Message}");
         }
-
         Console.WriteLine("Press any key to exit...");
         Console.ReadKey();
     }

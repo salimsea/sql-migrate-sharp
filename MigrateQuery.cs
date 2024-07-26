@@ -4,13 +4,14 @@ using MySql.Data.Types;
 using Npgsql;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using SqlMigrate.Helpers;
 using System.Data;
 
 namespace SqlMigrate
 {
     class MigrateQuery
     {
-        private readonly Common common = new();
+        private readonly ConnectionHelper common = new();
 
         public void UploadExcelToSql(string excelFilePath, string tableName)
         {
@@ -76,7 +77,15 @@ namespace SqlMigrate
                     object value = reader.GetValue(i);
                     if (value.ToString() is "01/01/0001 00:00:00")
                     {
-                        row[i] = new MySqlDateTime(new DateTime(1999, 1, 1));
+                        row[i] = new MySqlDateTime(new DateTime(1900, 1, 1));
+                    }
+                    else if (value.ToString() is "00/00/0000 00:00:00")
+                    {
+                        row[i] = new MySqlDateTime(new DateTime(1900, 1, 1));
+                    }
+                    else if (value.ToString() is "00/00/0000")
+                    {
+                        row[i] = new MySqlDateTime(new DateTime(1900, 1, 1));
                     }
                     else
                     {
@@ -161,17 +170,30 @@ namespace SqlMigrate
         #endregion
 
         #region SQLSERVER
-        private void InsertDataDynamic(DataTable dataTable, string insertQuery, string[] parameters, Dictionary<string, bool> dateTimeColumns, Dictionary<string, bool> intColumns)
+        public void InsertDataDynamic(DataTable dataTable,
+                                  string insertQuery,
+                                  string[] parameters,
+                                  Dictionary<string, bool> dateTimeColumns,
+                                  Dictionary<string, bool> intColumns,
+                                  string identityTable)
         {
             using SqlConnection sqlConn = common.SqlServerDbConnection;
             sqlConn.Open();
+
+            if (!string.IsNullOrEmpty(identityTable))
+            {
+                string enableIdentityInsert = $"SET IDENTITY_INSERT {identityTable} ON";
+                using SqlCommand enableCmd = new(enableIdentityInsert, sqlConn);
+                enableCmd.ExecuteNonQuery();
+            }
 
             foreach (DataRow row in dataTable.Rows)
             {
                 var msgId = row[0]?.ToString() ?? "Unknown ID";
                 try
                 {
-                    using SqlCommand cmd = new(insertQuery, sqlConn);
+                    using SqlCommand cmd = new SqlCommand(insertQuery, sqlConn);
+
                     foreach (var param in parameters)
                     {
                         object value = row[param];
@@ -194,6 +216,13 @@ namespace SqlMigrate
                     Console.WriteLine($"[ERROR] FAILED TO EXECUTE ROW : {msgId}. \n Error: {ex.Message}");
                 }
             }
+
+            if (!string.IsNullOrEmpty(identityTable))
+            {
+                string disableIdentityInsert = $"SET IDENTITY_INSERT {identityTable} OFF";
+                using SqlCommand disableCmd = new(disableIdentityInsert, sqlConn);
+                disableCmd.ExecuteNonQuery();
+            }
         }
 
         #endregion
@@ -201,6 +230,7 @@ namespace SqlMigrate
         #region TESTER
         public void InsertTbMahasiswa(DataTable dataTable)
         {
+            string identityScript = string.Empty;
             string insertQuery = @" INSERT INTO dbo.tb_mahasiswa (id, nama, kelas, prodi, npm, createddate)
                                     VALUES (@id, @nama, @kelas, @prodi, @npm, @createddate)";
 
@@ -216,7 +246,7 @@ namespace SqlMigrate
 
             Dictionary<string, bool> intColumns = new();
 
-            InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns, intColumns);
+            InsertDataDynamic(dataTable, insertQuery, parameters, dateTimeColumns, intColumns, identityScript);
         }
         #endregion
 

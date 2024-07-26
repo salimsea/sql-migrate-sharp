@@ -2,17 +2,17 @@
 using MySql.Data.MySqlClient;
 using Npgsql;
 
-namespace SqlMigrate
+namespace SqlMigrate.Helpers
 {
-    public class Common
+    public class ConnectionHelper
     {
         private readonly string _connectionSqlServerString;
         private readonly string _connectionMySqlString;
         private readonly string _connectionPostgreSqlString;
 
-        public Common()
+        public ConnectionHelper()
         {
-            _connectionSqlServerString = "Server=khansahanum;Database=db_sintadev;Integrated Security=True;Encrypt=False;TrustServerCertificate=False;";
+            _connectionSqlServerString = "Server=khansahanum;Database=db_test;Integrated Security=True;Encrypt=False;TrustServerCertificate=False;";
             _connectionMySqlString = "Server=localhost;Database=todo;User Id=root;Password=;Allow Zero Datetime=true;Convert Zero Datetime=true;";
             _connectionPostgreSqlString = "Server=localhost;Database=todo;User Id=postgres;Password=postgres;";
         }
